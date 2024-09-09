@@ -1,147 +1,81 @@
-// src/ProfilePage.js
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Box, Typography, Avatar, Button, Grid } from '@mui/material';
-import { Logout, Delete } from '@mui/icons-material';
+// // src/ProfilePage.js
+// import React, { useState } from "react";
 
-const ProfilePage = ({ handleDeleteAccount, handleLogout, admin, profileData: initialProfileData }) => {
-  const [editMode, setEditMode] = useState(false);
-  const [profileData, setProfileData] = useState(initialProfileData);
+// function ProfilePage() {
+//   return <></>;
+// }
 
-  const handleEditToggle = () => {
-    if (editMode) {
-      // Here, you could add a function to save the data to the server if needed
-    }
-    setEditMode(!editMode);
-  };
+// export default ProfilePage;
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProfileData({ ...profileData, [name]: value });
-  };
+import React from "react";
+import { getDatabase, ref } from "firebase/database";
+import { useObjectVal } from "react-firebase-hooks/database";
+import { initializeApp } from "firebase/app";
 
-  return (
-    <>
-      <MainContent>
-      <Grid item>
-          <Button variant="contained" color="secondary" onClick={handleEditToggle}>
-            {editMode ? "Save" : "Edit"}
-          </Button>
-        </Grid>
-        <ProfileForm>
-          {Object.keys(profileData).map((key) => (
-            <FormRow key={key}>
-              <Label>{key}</Label>
-              {editMode ? (
-                <Input 
-                  type="text" 
-                  name={key}
-                  value={profileData[key]} 
-                  onChange={handleChange} 
-                />
-              ) : (
-                <Text>{profileData[key]}</Text>
-              )}
-            </FormRow>
-          ))}
-        </ProfileForm>
-      </MainContent>
-      <Grid container spacing={2} justifyContent="center">
-        {/* <Grid item>
-          <Button variant="contained" color="primary" startIcon={<Logout />} onClick={handleLogout}>
-            Logout
-          </Button>
-        </Grid> */}
-        <Grid item>
-          <Button variant="outlined" color="error" startIcon={<Delete />} onClick={handleDeleteAccount}>
-            Delete Account
-          </Button>
-        </Grid>
-        
-      </Grid>
-    </>
-  );
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDBQMJsNkmiAsGLdbAWQOjJ71t7AunbOH4",
+  appId: "1:722889361340:web:09e0a8b5eeefc802b68db9",
+  messagingSenderId: "722889361340",
+  projectId: "newnew-1a703",
+  authDomain: "newnew-1a703.firebaseapp.com",
+  databaseURL:
+    "https://newnew-1a703-default-rtdb.europe-west1.firebasedatabase.app",
+  storageBucket: "newnew-1a703.appspot.com",
+  measurementId: "G-P7CGZT5H4Y",
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
+function ProfilePage() {
+  // Reference to the data in Firebase
+  const dataRef = ref(database, "sos/");
+  const [data, loading, error] = useObjectVal(dataRef);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
+  if (data) {
+    const { image, audio, lat, long, timestamp } = data;
+
+    return (
+      <div style={cardStyle}>
+        <img src={image} alt="Uploaded" style={imageStyle} />
+        <p>Latitude: {lat}</p>
+        <p>Longitude: {long}</p>
+        <audio controls>
+          <source src={audio} type="audio/3gp" />
+          Your browser does not support the audio element.
+        </audio>
+        <p>Timestamp: {new Date(timestamp).toLocaleString()}</p>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+// CSS styles
+const cardStyle = {
+  border: "1px solid #ccc",
+  padding: "16px",
+  borderRadius: "8px",
+  marginBottom: "16px",
+  maxWidth: "400px",
+  backgroundColor: "#f9f9f9",
+};
+
+const imageStyle = {
+  width: "100%",
+  height: "auto",
+  borderRadius: "8px",
 };
 
 export default ProfilePage;
-
-const Container = styled.div`
-  display: flex;
-  height: 100vh;
-`;
-
-const Sidebar = styled.div`
-  width: 250px;
-  background-color: #2c3e50;
-  color: #ecf0f1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 20px;
-`;
-
-const Logo = styled.div`
-  font-size: 1.5em;
-  font-weight: bold;
-`;
-
-const NavList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 20px 0;
-  width: 100%;
-`;
-
-const NavItem = styled.li`
-  display: flex;
-  align-items: center;
-  padding: 15px 20px;
-  cursor: pointer;
-  color: #ecf0f1;
-  &:hover {
-    background-color: #34495e;
-  }
-  & span {
-    margin-left: 10px;
-  }
-`;
-
-const MainContent = styled.div`
-  flex-grow: 1;
-  background-color: #ecf0f1;
-  padding: 20px;
-  overflow-y: auto;
-`;
-
-const Header = styled.header`
-  margin-bottom: 20px;
-`;
-
-const ProfileForm = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-`;
-
-const FormRow = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const Label = styled.label`
-  margin-bottom: 5px;
-  font-weight: bold;
-`;
-
-const Text = styled.div`
-  padding: 10px;
-  border: 1px solid #bdc3c7;
-  border-radius: 5px;
-  background-color: #ffffff;
-`;
-
-const Input = styled.input`
-  padding: 10px;
-  border: 1px solid #bdc3c7;
-  border-radius: 5px;
-`;
