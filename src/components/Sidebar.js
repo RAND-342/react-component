@@ -34,10 +34,10 @@ function Sidebar() {
           </li>
 
           <li className="sidebar-item">
-            <a className="sidebar-link" href="#">
+            <Link className="sidebar-link" to="/emergency">
               <i className="align-middle" data-feather="book"></i>{" "}
-              <span className="align-middle">Home</span>
-            </a>
+              <span className="align-middle">Emergency</span>
+            </Link>
           </li>
 
           <li className="sidebar-item">

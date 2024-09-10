@@ -1,27 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref } from "firebase/database";
-import { useObjectVal } from "react-firebase-hooks/database";
-
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDOJ_tExiOwyB-N7vbi6dV0vo3q1hYGIsM",
-  authDomain: "sih-demo-3333b.firebaseapp.com",
-  databaseURL:
-    "https://sih-demo-3333b-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "sih-demo-3333b",
-  storageBucket: "sih-demo-3333b.appspot.com",
-  messagingSenderId: "310085360046",
-  appId: "1:310085360046:web:151c8c12761382deab903f",
-  measurementId: "G-ZDVPZGT58G",
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+import { ref, onValue } from "firebase/database";
+import { database1 } from "../components/firebaseConfig.js"; // Import the Realtime Database instance
 
 const Dashboard = () => {
-  const [snapshot, loading, error] = useObjectVal(ref(database, "entries/"));
+  const [snapshot, setSnapshot] = useState(null);
   const [ipAddresses, setIpAddresses] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [emergencyMessage, setEmergencyMessage] = useState("");
@@ -32,17 +14,25 @@ const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
+    const snapshotRef = ref(database1, "entries/");
+    const unsubscribe = onValue(snapshotRef, (snapshot) => {
+      const data = snapshot.val();
+      setSnapshot(data);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
     if (snapshot) {
       const ips = Object.values(snapshot).map((entry) => entry["IP-port"]);
       setIpAddresses(ips);
 
-      // Dynamically create refs for the number of IP addresses
       const newVideoRefs = ips.map(() => React.createRef());
       setVideoRefs(newVideoRefs);
     }
   }, [snapshot]);
 
-  // Trigger emergency popup for alert conditions
   useEffect(() => {
     if (snapshot) {
       Object.values(snapshot).forEach((entry) => {
@@ -57,7 +47,6 @@ const Dashboard = () => {
     }
   }, [snapshot]);
 
-  // WebSocket logic for each camera
   useEffect(() => {
     const createWebSocket = (url, canvasRef) => {
       let ws;
@@ -113,7 +102,6 @@ const Dashboard = () => {
         createWebSocket(`ws://${ip}`, videoRefs[index])
       );
 
-      // Cleanup WebSocket connections on unmount
       return () => cleanupFns.forEach((cleanup) => cleanup());
     }
   }, [ipAddresses, videoRefs]);
@@ -128,8 +116,7 @@ const Dashboard = () => {
     setIsModalOpen(false);
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (!snapshot) return <div>Loading...</div>;
 
   return (
     <>
@@ -171,7 +158,6 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Emergency Popup */}
       {showPopup && (
         <div className="popup-bottom-right">
           <div className="popup-message">
@@ -185,6 +171,368 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+// Dashboard.js
+// import React, { useEffect, useRef, useState } from "react";
+// import { ref } from "firebase/database";
+// import { useObjectVal } from "react-firebase-hooks/database";
+// import { firstDatabase } from "../components/firebaseConfig.js"; // Import the first database
+
+// const Dashboard = () => {
+//   const [snapshot, loading, error] = useObjectVal(
+//     ref(firstDatabase, "entries/")
+//   );
+//   const [ipAddresses, setIpAddresses] = useState([]);
+//   const [showPopup, setShowPopup] = useState(false);
+//   const [emergencyMessage, setEmergencyMessage] = useState("");
+//   const [videoRefs, setVideoRefs] = useState([]);
+
+//   const fullscreenCanvasRef = useRef(null);
+//   const [fullscreenImage, setFullscreenImage] = useState(null);
+//   const [isModalOpen, setIsModalOpen] = useState(false);
+
+//   useEffect(() => {
+//     if (snapshot) {
+//       const ips = Object.values(snapshot).map((entry) => entry["IP-port"]);
+//       setIpAddresses(ips);
+
+//       // Dynamically create refs for the number of IP addresses
+//       const newVideoRefs = ips.map(() => React.createRef());
+//       setVideoRefs(newVideoRefs);
+//     }
+//   }, [snapshot]);
+
+//   // Trigger emergency popup for alert conditions
+//   useEffect(() => {
+//     if (snapshot) {
+//       Object.values(snapshot).forEach((entry) => {
+//         if (entry.alert === true) {
+//           setEmergencyMessage(
+//             `Emergency at ${entry.location}: ${entry.reason}`
+//           );
+//           setShowPopup(true);
+//           setTimeout(() => setShowPopup(false), 5000);
+//         }
+//       });
+//     }
+//   }, [snapshot]);
+
+//   // WebSocket logic for each camera
+//   useEffect(() => {
+//     const createWebSocket = (url, canvasRef) => {
+//       let ws;
+//       let retryTimeout;
+
+//       const connectWebSocket = () => {
+//         ws = new WebSocket(url);
+
+//         ws.onopen = () => {
+//           console.log(`Connected to ${url}`);
+//         };
+
+//         ws.onmessage = (event) => {
+//           const img = new Image();
+//           img.src = event.data;
+
+//           img.onload = () => {
+//             if (canvasRef && canvasRef.current) {
+//               const canvas = canvasRef.current;
+//               const context = canvas.getContext("2d");
+
+//               if (context) {
+//                 canvas.width = canvas.offsetWidth;
+//                 canvas.height = canvas.offsetHeight;
+//                 context.clearRect(0, 0, canvas.width, canvas.height);
+//                 context.drawImage(img, 0, 0, canvas.width, canvas.height);
+//               }
+//             }
+//           };
+//         };
+
+//         ws.onclose = () => {
+//           console.log(`Connection closed for ${url}. Reconnecting...`);
+//           retryTimeout = setTimeout(connectWebSocket, 3000);
+//         };
+
+//         ws.onerror = (error) => {
+//           console.error(`Error in WebSocket connection to ${url}:`, error);
+//           ws.close();
+//         };
+//       };
+
+//       connectWebSocket();
+
+//       return () => {
+//         if (ws) ws.close();
+//         if (retryTimeout) clearTimeout(retryTimeout);
+//       };
+//     };
+
+//     if (ipAddresses.length > 0) {
+//       const cleanupFns = ipAddresses.map((ip, index) =>
+//         createWebSocket(`ws://${ip}`, videoRefs[index])
+//       );
+
+//       // Cleanup WebSocket connections on unmount
+//       return () => cleanupFns.forEach((cleanup) => cleanup());
+//     }
+//   }, [ipAddresses, videoRefs]);
+
+//   const handleCanvasClick = (canvasRef) => {
+//     setFullscreenImage(canvasRef);
+//     setIsModalOpen(true);
+//   };
+
+//   const closeFullscreen = () => {
+//     setFullscreenImage(null);
+//     setIsModalOpen(false);
+//   };
+
+//   if (loading) return <div>Loading...</div>;
+//   if (error) return <div>Error: {error.message}</div>;
+
+//   return (
+//     <>
+//       <h1 className="h3 mb-3">
+//         <strong>Camera Feeds</strong>
+//       </h1>
+
+//       <div className={`row ${isModalOpen ? "blur-background" : ""}`}>
+//         <div className="col d-flex">
+//           <div className="w-100">
+//             <div className="row">
+//               {ipAddresses.map((ip, index) => (
+//                 <div className="col-lg-4 col-md-6 mb-3" key={index}>
+//                   <div className="card">
+//                     <div className="card-body p-0">
+//                       <h5 className="card-title">Camera {index + 1}</h5>
+//                       <canvas
+//                         ref={videoRefs[index]}
+//                         className="canvas-responsive"
+//                         onClick={() => handleCanvasClick(videoRefs[index])}
+//                       ></canvas>
+//                     </div>
+//                   </div>
+//                 </div>
+//               ))}
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+//       {isModalOpen && (
+//         <div className="fullscreen-modal" onClick={closeFullscreen}>
+//           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+//             <canvas ref={fullscreenCanvasRef} className="modal-canvas"></canvas>
+//             <button className="close-button" onClick={closeFullscreen}>
+//               Close
+//             </button>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* Emergency Popup */}
+//       {showPopup && (
+//         <div className="popup-bottom-right">
+//           <div className="popup-message">
+//             <strong>Emergency Alert</strong>
+//             <p>{emergencyMessage}</p>
+//           </div>
+//         </div>
+//       )}
+//     </>
+//   );
+// };
+
+// export default Dashboard;
+
+// import React, { useEffect, useRef, useState } from "react";
+// import { initializeApp } from "firebase/app";
+// import { getDatabase, ref } from "firebase/database";
+// import { useObjectVal } from "react-firebase-hooks/database";
+
+// // Firebase configuration
+// const firebaseConfig = {
+//   apiKey: "AIzaSyDOJ_tExiOwyB-N7vbi6dV0vo3q1hYGIsM",
+//   authDomain: "sih-demo-3333b.firebaseapp.com",
+//   databaseURL:
+//     "https://sih-demo-3333b-default-rtdb.asia-southeast1.firebasedatabase.app",
+//   projectId: "sih-demo-3333b",
+//   storageBucket: "sih-demo-3333b.appspot.com",
+//   messagingSenderId: "310085360046",
+//   appId: "1:310085360046:web:151c8c12761382deab903f",
+//   measurementId: "G-ZDVPZGT58G",
+// };
+
+// // Initialize Firebase
+// const app = initializeApp(firebaseConfig);
+// const database = getDatabase(app);
+
+// const Dashboard = () => {
+//   const [snapshot, loading, error] = useObjectVal(ref(database, "entries/"));
+//   const [ipAddresses, setIpAddresses] = useState([]);
+//   const [showPopup, setShowPopup] = useState(false);
+//   const [emergencyMessage, setEmergencyMessage] = useState("");
+//   const [videoRefs, setVideoRefs] = useState([]);
+
+//   const fullscreenCanvasRef = useRef(null);
+//   const [fullscreenImage, setFullscreenImage] = useState(null);
+//   const [isModalOpen, setIsModalOpen] = useState(false);
+
+//   useEffect(() => {
+//     if (snapshot) {
+//       const ips = Object.values(snapshot).map((entry) => entry["IP-port"]);
+//       setIpAddresses(ips);
+
+//       // Dynamically create refs for the number of IP addresses
+//       const newVideoRefs = ips.map(() => React.createRef());
+//       setVideoRefs(newVideoRefs);
+//     }
+//   }, [snapshot]);
+
+//   // Trigger emergency popup for alert conditions
+//   useEffect(() => {
+//     if (snapshot) {
+//       Object.values(snapshot).forEach((entry) => {
+//         if (entry.alert === true) {
+//           setEmergencyMessage(
+//             `Emergency at ${entry.location}: ${entry.reason}`
+//           );
+//           setShowPopup(true);
+//           setTimeout(() => setShowPopup(false), 5000);
+//         }
+//       });
+//     }
+//   }, [snapshot]);
+
+//   // WebSocket logic for each camera
+//   useEffect(() => {
+//     const createWebSocket = (url, canvasRef) => {
+//       let ws;
+//       let retryTimeout;
+
+//       const connectWebSocket = () => {
+//         ws = new WebSocket(url);
+
+//         ws.onopen = () => {
+//           console.log(`Connected to ${url}`);
+//         };
+
+//         ws.onmessage = (event) => {
+//           const img = new Image();
+//           img.src = event.data;
+
+//           img.onload = () => {
+//             if (canvasRef && canvasRef.current) {
+//               const canvas = canvasRef.current;
+//               const context = canvas.getContext("2d");
+
+//               if (context) {
+//                 canvas.width = canvas.offsetWidth;
+//                 canvas.height = canvas.offsetHeight;
+//                 context.clearRect(0, 0, canvas.width, canvas.height);
+//                 context.drawImage(img, 0, 0, canvas.width, canvas.height);
+//               }
+//             }
+//           };
+//         };
+
+//         ws.onclose = () => {
+//           console.log(`Connection closed for ${url}. Reconnecting...`);
+//           retryTimeout = setTimeout(connectWebSocket, 3000);
+//         };
+
+//         ws.onerror = (error) => {
+//           console.error(`Error in WebSocket connection to ${url}:`, error);
+//           ws.close();
+//         };
+//       };
+
+//       connectWebSocket();
+
+//       return () => {
+//         if (ws) ws.close();
+//         if (retryTimeout) clearTimeout(retryTimeout);
+//       };
+//     };
+
+//     if (ipAddresses.length > 0) {
+//       const cleanupFns = ipAddresses.map((ip, index) =>
+//         createWebSocket(`ws://${ip}`, videoRefs[index])
+//       );
+
+//       // Cleanup WebSocket connections on unmount
+//       return () => cleanupFns.forEach((cleanup) => cleanup());
+//     }
+//   }, [ipAddresses, videoRefs]);
+
+//   const handleCanvasClick = (canvasRef) => {
+//     setFullscreenImage(canvasRef);
+//     setIsModalOpen(true);
+//   };
+
+//   const closeFullscreen = () => {
+//     setFullscreenImage(null);
+//     setIsModalOpen(false);
+//   };
+
+//   if (loading) return <div>Loading...</div>;
+//   if (error) return <div>Error: {error.message}</div>;
+
+//   return (
+//     <>
+//       <h1 className="h3 mb-3">
+//         <strong>Camera Feeds</strong>
+//       </h1>
+
+//       <div className={`row ${isModalOpen ? "blur-background" : ""}`}>
+//         <div className="col d-flex">
+//           <div className="w-100">
+//             <div className="row">
+//               {ipAddresses.map((ip, index) => (
+//                 <div className="col-lg-4 col-md-6 mb-3" key={index}>
+//                   <div className="card">
+//                     <div className="card-body p-0">
+//                       <h5 className="card-title">Camera {index + 1}</h5>
+//                       <canvas
+//                         ref={videoRefs[index]}
+//                         className="canvas-responsive"
+//                         onClick={() => handleCanvasClick(videoRefs[index])}
+//                       ></canvas>
+//                     </div>
+//                   </div>
+//                 </div>
+//               ))}
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+//       {isModalOpen && (
+//         <div className="fullscreen-modal" onClick={closeFullscreen}>
+//           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+//             <canvas ref={fullscreenCanvasRef} className="modal-canvas"></canvas>
+//             <button className="close-button" onClick={closeFullscreen}>
+//               Close
+//             </button>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* Emergency Popup */}
+//       {showPopup && (
+//         <div className="popup-bottom-right">
+//           <div className="popup-message">
+//             <strong>Emergency Alert</strong>
+//             <p>{emergencyMessage}</p>
+//           </div>
+//         </div>
+//       )}
+//     </>
+//   );
+// };
+
+// export default Dashboard;
 
 // import React, { useEffect, useRef, useState } from "react";
 // import { initializeApp } from "firebase/app";
