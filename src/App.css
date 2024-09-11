@@ -27,38 +27,68 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 60vw; /* Set fixed width for the modal */
-  height: 80vh; /* Set fixed height for the modal */
-  background-color: rgba(255, 255, 255, 1); /* Semi-transparent background */
+  width: 100%; /* Set fixed width for the modal */
+  height: 100%; /* Set fixed height for the modal */
+  background-color: rgba(177, 176, 184,0.4); /* Semi-transparent background */
   display: flex;
   justify-content: center;
+  flex-direction: column;
   align-items: center;
+  padding: 0px;
   transform: translate(-50%, -50%); /* Centering the modal */
   z-index: 1000;
-  border-radius: 10px; /* Optional: round the corners of the modal */
+   /* Optional: round the corners of the modal */
+}
+.orange-alert {
+  background-color: orange; /* Set background color to orange */
+  color: white; /* Set text color for better contrast */
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  bottom: 70px; /* Position it slightly above the emergency alert */
+  right: 20px;
+  z-index: 1001; /* Ensure it appears above other content */
+}
+.popup-bottom-right1 {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  background-color: orange;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 1000;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+
+
 .modal-content {
+  object-fit: contain;
   position: relative;
   background-color: transparent;
-  padding: 20px;
-  width: 90%; /* Modal width relative to modal */
-  height: 90%; /* Modal height relative to modal */
+  margin-top: 30px;
+  padding: 0px;
+  width: 40vw; /* Modal width relative to modal */
+  height: 40vw; /* Modal height relative to modal */
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 10px;
+  
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .close-button {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 15px;
+  right: 350px;
   background-color: red;
   color: white;
   border: none;
   padding: 5px 10px;
+  width: 80px;
   cursor: pointer;
   border-radius: 5px;
 }
@@ -79,7 +109,15 @@
   font-size: 1.2em;
   margin-bottom: 5px;
 }
-
+.audio{
+  align-items: center;
+  display: flex;
+  align-content: center;
+}
+.para{
+  padding-top: 15px;
+  text-align: center;
+}
 .popup-message p {
   margin: 0;
   font-size: 0.9em;
@@ -106,6 +144,11 @@
 /* Ensure that the canvas in modal is responsive */
 .modal-canvas {
   width: 100%;
+  height: 100%;
+  object-fit: contain; /* Maintain aspect ratio */
+}
+.modal-canvas1 {
+  width: 200%;
   height: 100%;
   object-fit: contain; /* Maintain aspect ratio */
 }

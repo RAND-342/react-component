@@ -8,7 +8,10 @@ import ProfilePage from "./components/ProfileNew";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import profileData from "./components/profiledata";
 import Emergency from "./components/emergency";
-
+import Admin from "./components/Admin";
+import Layout from "./pages/DashboardLayout";
+import Login from "./pages/Login.js";
+import Signup from "./pages/Signup.js";
 function App() {
   return (
     <Router>
@@ -21,16 +24,23 @@ function App() {
             <div className="container-fluid p-0"></div>
             <>
               <Routes>
-                <Route exact path="/" element={<Dashboard />} />
+                <Route path="/" element={<Login />} /> {/* Default route */}
+                <Route path="/login" element={<Login />} /> {/* Login route */}
+                <Route path="/signup" element={<Signup />} />{" "}
+                {/* Signup route */}
+                {/* Protected Routes with Layout */}
+                <Route element={<Layout />} />
+                <Route exact path="/admin" element={<Admin />} />
+                <Route exact path="/dashboard" element={<Dashboard />} />
                 <Route
                   exact
-                  path="/profile"
+                  path="/sos"
                   element={<ProfilePage profileData={profileData[0]} />}
                 />
                 {profileData.map((profile) => (
                   <Route
                     key={profile.id}
-                    path={`/profile/${profile.id}`}
+                    path={`/sos/${profile.id}`}
                     element={<ProfilePage profileData={profile} />}
                   />
                 ))}

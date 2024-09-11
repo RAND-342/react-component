@@ -1,24 +1,32 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import user from "./user.png";
-import vlncy from "./vlncy.jpg";
+import vlncy from "./img.png";
 
 function Sidebar() {
   return (
     <nav id="sidebar" className="sidebar js-sidebar">
       <div className="sidebar-content js-simplebar">
         <a className="sidebar-brand" href="index.html">
-          <img src={vlncy} height="30px"></img>
+          <img src={vlncy} height="50px"></img>
           <span className="align-middle">Team Pragatti</span>
         </a>
 
         <ul className="sidebar-nav">
           <li className="sidebar-header">Pages</li>
-
+          <li className="sidebar-item">
+            <>
+              <Link className="sidebar-link" to="/admin">
+                <i className="align-middle" data-feather="alert-triangle"></i>
+                {"  "}
+                <span className="align-middle">Admin</span>
+              </Link>
+            </>
+          </li>
           <li className="sidebar-item active">
             <>
-              <Link className="sidebar-link" to="/">
-                <i className="align-middle" data-feather="sliders"></i>{" "}
+              <Link className="sidebar-link" to="/dashboard">
+                <i className="align-middle" data-feather="video"></i>{" "}
                 <span className="align-middle">Camera Feeds</span>
               </Link>
             </>
@@ -26,25 +34,31 @@ function Sidebar() {
 
           <li className="sidebar-item">
             <>
-              <Link className="sidebar-link" to="/profile">
-                <i className="align-middle" data-feather="user"></i>{" "}
-                <span className="align-middle">Alerts</span>
+              <Link className="sidebar-link" to="/sos">
+                <i className="align-middle" data-feather="alert-triangle"></i>
+                {"  "}
+                <span className="align-middle">SOS</span>
               </Link>
             </>
           </li>
 
           <li className="sidebar-item">
             <Link className="sidebar-link" to="/emergency">
-              <i className="align-middle" data-feather="book"></i>{" "}
-              <span className="align-middle">Emergency</span>
+              <i className="align-middle" data-feather="inbox"></i>{" "}
+              <span className="align-middle">Complaints</span>
             </Link>
           </li>
-
           <li className="sidebar-item">
-            <a className="sidebar-link" href="#">
-              <i className="align-middle" data-feather="users"></i>{" "}
-              <span className="align-middle">User</span>
-            </a>
+            <Link className="sidebar-link" to="/emergency">
+              <i className="align-middle" data-feather="settings"></i>{" "}
+              <span className="align-middle">Settings</span>
+            </Link>
+          </li>
+          <li className="sidebar-item">
+            <Link className="sidebar-link" to="/emergency">
+              <i className="align-middle" data-feather="help-circle"></i>{" "}
+              <span className="align-middle">Help Center</span>
+            </Link>
           </li>
 
           {/* <li className="sidebar-header">
