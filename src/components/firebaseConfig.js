@@ -3,29 +3,30 @@ import { getDatabase } from "firebase/database";
 import { getFirestore } from "firebase/firestore";
 
 // Firebase configuration for Realtime Database
+// Firebase Configuration 1 (Realtime DB)
 const firebaseConfig1 = {
-  apiKey: "AIzaSyDOJ_tExiOwyB-N7vbi6dV0vo3q1hYGIsM",
-  authDomain: "sih-demo-3333b.firebaseapp.com",
-  databaseURL:
-    "https://sih-demo-3333b-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "sih-demo-3333b",
-  storageBucket: "sih-demo-3333b.appspot.com",
-  messagingSenderId: "310085360046",
-  appId: "1:310085360046:web:151c8c12761382deab903f",
-  measurementId: "G-ZDVPZGT58G",
+  apiKey: "AIzaSyXXXXXX-DUMMY-KEY-1234567890",
+  authDomain: "your-app-1.firebaseapp.com",
+  databaseURL: "https://your-app-1-default-rtdb.region.firebasedatabase.app",
+  projectId: "your-app-1",
+  storageBucket: "your-app-1.appspot.com",
+  messagingSenderId: "123456789012",
+  appId: "1:123456789012:web:abcdef1234567890abcdef",
+  measurementId: "G-ABCDEFG123",
 };
 
-// Firebase configuration for Firestore
+// Firebase Configuration 2 (Firestore)
 const firebaseConfig2 = {
-  apiKey: "AIzaSyDBQMJsNkmiAsGLdbAWQOjJ71t7AunbOH4",
-  authDomain: "newnew-1a703.firebaseapp.com",
-  projectId: "newnew-1a703",
-  appId: "1:722889361340:web:09e0a8b5eeefc802b68db9",
-  databaseURL:
-    "https://newnew-1a703-default-rtdb.europe-west1.firebasedatabase.app",
-  storageBucket: "newnew-1a703.appspot.com",
-  measurementId: "G-P7CGZT5H4Y",
+  apiKey: "AIzaSyYYYYYY-DUMMY-KEY-0987654321",
+  authDomain: "your-app-2.firebaseapp.com",
+  databaseURL: "https://your-app-2-default-rtdb.region.firebasedatabase.app",
+  projectId: "your-app-2",
+  storageBucket: "your-app-2.appspot.com",
+  messagingSenderId: "987654321098",
+  appId: "1:987654321098:web:123456abcdef123456abcd",
+  measurementId: "G-HIJKLMN456",
 };
+
 
 // Initialize Firebase apps
 const app1 = initializeApp(firebaseConfig1, "app1");
